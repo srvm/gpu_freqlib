@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <map>
+#include <algorithm>
 #include <nvml.h>
 
 #define NVML_TRY(call)                                             \
@@ -52,6 +53,7 @@ namespace freqlib {
       auto mem_clocks = get_supported_mem_clocks();
       for(auto clock: mem_clocks) {
         freqlist_t sm_clocks = get_supported_clocks(clock);
+        std::sort(sm_clocks.begin(), sm_clocks.end());
         m_clock_map[clock] = sm_clocks;
       }
 
@@ -101,9 +103,31 @@ namespace freqlib {
 
 
     error_t step_up_clock() {
+      frequency_t mem_clock = get_current_mem_clock();
+      auto sm_clocks = m_clock_map[mem_clock];
+      auto clock_iterator = std::find(sm_clocks.begin(),
+                                      sm_clocks.end(),
+                                      get_current_clock());
+      frequency_t next_clock =
+        ((clock_iterator+1) != sm_clocks.end())?
+        *(clock_iterator+1): *clock_iterator;
+
+      //printf("step_up: Current is %u, Next is %u\n", *clock_iterator, next_clock);
+      set_clocks(mem_clock, next_clock);
     }
 
     error_t step_down_clock() {
+      frequency_t mem_clock = get_current_mem_clock();
+      auto sm_clocks = m_clock_map[mem_clock];
+      auto clock_iterator = std::find(sm_clocks.begin(),
+                                      sm_clocks.end(),
+                                      get_current_clock());
+      frequency_t prev_clock =
+        (clock_iterator == sm_clocks.begin())?
+        *clock_iterator: *(clock_iterator-1);
+
+      //printf("step_down: Current is %u, Prev is %u\n", *clock_iterator, prev_clock);
+      set_clocks(mem_clock, next_clock);
     }
 
     error_t step_up_mem_clock() {
@@ -151,6 +175,10 @@ namespace freqlib {
           printf("<%u, %u>\n", k.first, v);
         }
       }
+    }
+
+    inline bool is_valid_clock_pair(frequency_t mem_clock,
+                                    frequency_t sm_clock) const {
     }
 
   private:

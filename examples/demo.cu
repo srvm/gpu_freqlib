@@ -14,6 +14,9 @@ int main() {
   auto sm_clocks = knob.get_supported_clocks();
   auto mem_clocks = knob.get_supported_mem_clocks();
 
+  knob.step_up_clock();
+  knob.step_down_clock();
+
   //std::vector<double> clock_frequencies{knob.get_supported_clocks()};
   //std::vector<double> mem_frequencies{knob.get_supported_mem_clocks()};
 
