@@ -45,13 +45,16 @@ namespace freqlib {
                 nvmlErrorString(result));
         //exit(-1);
       }
+      // TODO: Each object is fixed to
+      // one device. Make this more general.
       _set_device(m_device_idx);
 
       // XXX: Is this call needed?
       reset_all_clocks();
 
-      auto mem_clocks = get_supported_mem_clocks();
-      for(auto clock: mem_clocks) {
+      m_mem_clocks = get_supported_mem_clocks();
+      std::sort(m_mem_clocks.begin(), m_mem_clocks.end());
+      for(auto clock: m_mem_clocks) {
         freqlist_t sm_clocks = get_supported_clocks(clock);
         std::sort(sm_clocks.begin(), sm_clocks.end());
         m_clock_map[clock] = sm_clocks;
@@ -101,7 +104,6 @@ namespace freqlib {
     clock_map_t get_supported_clock_pairs() {
     }
 
-
     error_t step_up_clock() {
       frequency_t mem_clock = get_current_mem_clock();
       auto sm_clocks = m_clock_map[mem_clock];
@@ -127,16 +129,41 @@ namespace freqlib {
         *clock_iterator: *(clock_iterator-1);
 
       //printf("step_down: Current is %u, Prev is %u\n", *clock_iterator, prev_clock);
-      set_clocks(mem_clock, next_clock);
+      set_clocks(mem_clock, prev_clock);
     }
 
     error_t step_up_mem_clock() {
+      auto clock_iterator = std::find(m_mem_clocks.begin(),
+                                      m_mem_clocks.end(),
+                                      get_current_mem_clock());
+      frequency_t next_clock =
+        ((clock_iterator+1) != m_mem_clocks.end())?
+        *(clock_iterator+1): *clock_iterator;
+
+      printf("step_up: Current is %u, Next is %u\n", *clock_iterator, next_clock);
+      set_clocks(next_clock, get_current_clock());
     }
 
     error_t step_down_mem_clock() {
+      auto clock_iterator = std::find(m_mem_clocks.begin(),
+                                      m_mem_clocks.end(),
+                                      get_current_mem_clock());
+      frequency_t prev_clock =
+        (clock_iterator == m_mem_clocks.begin())?
+        *clock_iterator: *(clock_iterator-1);
+
+      printf("step_down: Current is %u, Prev is %u\n", *clock_iterator, prev_clock);
+      set_clocks(prev_clock, get_current_clock());
     }
 
-    error_t set_clocks(frequency_t sm_clock, frequency_t mem_clock) {
+    error_t set_clocks(frequency_t mem_clock, frequency_t sm_clock) {
+      if(!is_valid_clock_pair(mem_clock, sm_clock)) {
+        fprintf(stderr, "[Warning] Clock pair <%u, %u> not supported\n",
+                mem_clock, sm_clock);
+        return;
+      }
+      else {
+      }
     }
 
     frequency_t get_current_clock() {
@@ -178,13 +205,21 @@ namespace freqlib {
     }
 
     inline bool is_valid_clock_pair(frequency_t mem_clock,
-                                    frequency_t sm_clock) const {
+                                    frequency_t sm_clock) {
+      auto sm_clocks = m_clock_map[mem_clock];
+      if(std::find(sm_clocks.begin(),
+                   sm_clocks.end(),
+                   sm_clock) == sm_clocks.end())
+        return false;
+      else
+        return true;
     }
 
   private:
     int m_device_idx;
     nvmlDevice_t m_device;
     clock_map_t m_clock_map;
+    freqlist_t m_mem_clocks;
   };
 
 } // ns freqlib
