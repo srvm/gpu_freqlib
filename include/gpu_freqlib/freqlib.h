@@ -107,6 +107,8 @@ namespace freqlib {
     error_t step_up_clock() {
       frequency_t mem_clock = get_current_mem_clock();
       auto sm_clocks = m_clock_map[mem_clock];
+      
+      // FIXME: find may be too slow for this.
       auto clock_iterator = std::find(sm_clocks.begin(),
                                       sm_clocks.end(),
                                       get_current_clock());
@@ -121,6 +123,8 @@ namespace freqlib {
     error_t step_down_clock() {
       frequency_t mem_clock = get_current_mem_clock();
       auto sm_clocks = m_clock_map[mem_clock];
+      
+      // FIXME: find may be too slow for this.
       auto clock_iterator = std::find(sm_clocks.begin(),
                                       sm_clocks.end(),
                                       get_current_clock());
@@ -133,6 +137,7 @@ namespace freqlib {
     }
 
     error_t step_up_mem_clock() {
+      // FIXME: find may be too slow for this.
       auto clock_iterator = std::find(m_mem_clocks.begin(),
                                       m_mem_clocks.end(),
                                       get_current_mem_clock());
@@ -140,11 +145,12 @@ namespace freqlib {
         ((clock_iterator+1) != m_mem_clocks.end())?
         *(clock_iterator+1): *clock_iterator;
 
-      printf("step_up: Current is %u, Next is %u\n", *clock_iterator, next_clock);
+      //printf("step_up: Current is %u, Next is %u\n", *clock_iterator, next_clock);
       set_clocks(next_clock, get_current_clock());
     }
 
     error_t step_down_mem_clock() {
+      // FIXME: find may be too slow for this.
       auto clock_iterator = std::find(m_mem_clocks.begin(),
                                       m_mem_clocks.end(),
                                       get_current_mem_clock());
@@ -152,7 +158,7 @@ namespace freqlib {
         (clock_iterator == m_mem_clocks.begin())?
         *clock_iterator: *(clock_iterator-1);
 
-      printf("step_down: Current is %u, Prev is %u\n", *clock_iterator, prev_clock);
+      //printf("step_down: Current is %u, Prev is %u\n", *clock_iterator, prev_clock);
       set_clocks(prev_clock, get_current_clock());
     }
 
