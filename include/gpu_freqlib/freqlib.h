@@ -33,6 +33,7 @@ namespace freqlib {
   using frequency_t = unsigned int;
   using freqlist_t = std::vector<frequency_t>;
   using clock_map_t = std::map<frequency_t, freqlist_t>;
+  using clock_pair_t = std::vector<std::pair<frequency_t, frequency_t>>;
   using error_t = void;
 
   struct instance {
@@ -45,7 +46,7 @@ namespace freqlib {
                 nvmlErrorString(result));
         //exit(-1);
       }
-      // TODO: Each object is fixed to
+      // TODO: Each instance object is fixed to
       // one device. Make this more general.
       _set_device(m_device_idx);
 
@@ -74,7 +75,6 @@ namespace freqlib {
     }
 
     freqlist_t get_supported_clocks(frequency_t mem_clock = 0) {
-
       if(mem_clock == 0)
         mem_clock = get_current_mem_clock();
 
@@ -101,13 +101,20 @@ namespace freqlib {
       return freqlist_t{supported, supported + count};
     }
 
-    clock_map_t get_supported_clock_pairs() {
+    clock_pair_t get_supported_clock_pairs() {
+      clock_pair_t clock_pairs;
+      for(auto k: m_clock_map) {
+        for(auto v: k.second) {
+          clock_pairs.push_back(std::make_pair(k.first, v));
+        }
+      }
+      return clock_pairs;
     }
 
     error_t step_up_clock() {
       frequency_t mem_clock = get_current_mem_clock();
       auto sm_clocks = m_clock_map[mem_clock];
-      
+
       // FIXME: find may be too slow for this.
       auto clock_iterator = std::find(sm_clocks.begin(),
                                       sm_clocks.end(),
@@ -123,7 +130,7 @@ namespace freqlib {
     error_t step_down_clock() {
       frequency_t mem_clock = get_current_mem_clock();
       auto sm_clocks = m_clock_map[mem_clock];
-      
+
       // FIXME: find may be too slow for this.
       auto clock_iterator = std::find(sm_clocks.begin(),
                                       sm_clocks.end(),
@@ -203,8 +210,8 @@ namespace freqlib {
     }
 
     void _print_supported_clocks() {
-      for(auto& k: m_clock_map) {
-        for(auto& v: k.second) {
+      for(auto k: m_clock_map) {
+        for(auto v: k.second) {
           printf("<%u, %u>\n", k.first, v);
         }
       }
