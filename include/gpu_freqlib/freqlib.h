@@ -210,10 +210,8 @@ namespace freqlib {
     }
 
     void _print_supported_clocks() {
-      for(auto k: m_clock_map) {
-        for(auto v: k.second) {
-          printf("<%u, %u>\n", k.first, v);
-        }
+      for(auto v: get_supported_clock_pairs()) {
+        printf("<%u, %u>\n", v.first, v.second);
       }
     }
 
