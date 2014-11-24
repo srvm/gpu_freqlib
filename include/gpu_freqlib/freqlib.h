@@ -9,7 +9,7 @@
   do {                                                             \
     nvmlReturn_t result = call;                                    \
     if(NVML_SUCCESS != result) {                                   \
-      fprintf(stderr, "[Warning {%s:%d}] NVML call failed with error: %s\n",  \
+      fprintf(stderr, "[%s:%d] NVML call failed with error: %s\n",  \
               __FILE__, __LINE__, nvmlErrorString(result));                            \
     }                                                              \
   } while(0)
@@ -18,7 +18,7 @@
   do {                                                             \
     nvmlReturn_t result = call;                                    \
     if(NVML_SUCCESS != result) {                                   \
-      fprintf(stderr, "[Error {%s:%d}] NVML call failed with error %s\n",  \
+      fprintf(stderr, "[%s:%d] NVML call failed with error %s\n",  \
               __FILE__, __LINE__, nvmlErrorString(result));                            \
       result = nvmlShutdown();                                     \
       if(NVML_SUCCESS != result) {                                 \
@@ -61,7 +61,7 @@ namespace freqlib {
         m_clock_map[clock] = sm_clocks;
       }
 
-      _print_supported_clocks();
+      //_print_supported_clocks();
     }
 
     ~instance() {
@@ -176,6 +176,22 @@ namespace freqlib {
         return;
       }
       else {
+        unsigned long long throttle_reasons;
+
+        // Check if H/W or some other unknown throttling is enabled
+        NVML_TRY(nvmlDeviceGetCurrentClocksThrottleReasons(m_device, &throttle_reasons));
+        if(throttle_reasons & nvmlClocksThrottleReasonHwSlowdown)
+          fprintf(stderr, "[Warning] H/W clock throttling is enabled\n");
+        if(throttle_reasons & nvmlClocksThrottleReasonUnknown)
+          fprintf(stderr, "[Warning] Unknown reason causing clock throttling\n");
+
+        // Proceed to change clock rates
+        NVML_TRY(nvmlDeviceSetApplicationsClocks(m_device, mem_clock, sm_clock));
+
+        if(get_current_clock() != sm_clock)
+          fprintf(stderr, "[Warning] SM clock change unsuccessful\n");
+        if(get_current_mem_clock() != mem_clock)
+          fprintf(stderr, "[Warning] Memory clock change unsuccessful\n");
       }
     }
 
