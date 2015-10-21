@@ -1,11 +1,11 @@
 GPU Frequency Library (gpu\_freqlib)
 ====================================
 
-A lightweight C++ library for varying core and memory frequencies on NVIDIA GPUs.
+A lightweight C++ library for varying core and memory clock frequencies on NVIDIA GPUs.
 
 ### Pre-reqs
 
-* NVIDIA GPU that supports core and memory frequency adjustments
+* NVIDIA GPU that supports core and memory clock frequency adjustments
 * CUDA toolkit 6.5 or above
 * NVIDIA GDK (for NVML) ([download](https://developer.nvidia.com/gpu-deployment-kit))
 
@@ -15,11 +15,12 @@ A lightweight C++ library for varying core and memory frequencies on NVIDIA GPUs
 
 ### Before You Start
 
-Before trying to vary frequencies on the GPU, please ensure that persistence mode
-is enabled. Further, unless you want to run as root, make sure application clocks
-can be varied by normal users. The following article from NVIDIA describes how to do
-both using the built-in `nvidia-smi` tool.
+Before trying to vary clock frequencies on the GPU, please ensure that persistence mode
+is enabled. This allows the driver to retain the chosen frequencies across kernel calls.
+Further, unless you want to run as root, make sure application clocks
+can be varied by normal users.
 
+Please refer to the following article from NVIDIA for more information:
 [Increase Performance with GPU Boost and K80 Autoboost](http://devblogs.nvidia.com/parallelforall/increase-performance-gpu-boost-k80-autoboost/).
 
 ### Sample Usage
