@@ -15,7 +15,7 @@ A lightweight C++ library for varying core and memory frequencies on NVIDIA GPUs
 
 ### Before You Start
 
-Before trying to vary frequencies on the GPU, please ensure the persistence mode
+Before trying to vary frequencies on the GPU, please ensure that persistence mode
 is enabled. Further, unless you want to run as root, make sure application clocks
 can be varied by normal users. The following article from NVIDIA describes how to do
 both using the built-in `nvidia-smi` tool.
