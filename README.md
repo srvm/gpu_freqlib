@@ -7,7 +7,7 @@ A lightweight C++ library for varying core and memory frequencies on NVIDIA GPUs
 
 * NVIDIA GPU that supports core and memory frequency adjustments
 * CUDA toolkit 6.5 or above
-* NVML library ([download](https://developer.nvidia.com/nvidia-management-library-nvml))
+* NVIDIA GDK (for NVML) ([download](https://developer.nvidia.com/gpu-deployment-kit))
 
 ### Installation
 
