@@ -11,7 +11,16 @@ A lightweight C++ library for varying core and memory frequencies on NVIDIA GPUs
 
 ### Installation
 
-gpu\_freqlib is a header-only C++ library. So no installation is required.
+`gpu_freqlib` is a header-only C++ library. So no installation is required.
+
+### Before You Start
+
+Before trying to vary frequencies on the GPU, please ensure the persistence mode
+is enabled. Further, unless you want to run as root, make sure application clocks
+can be varied by normal users. The following article from NVIDIA describes how to do
+both using the built-in `nvidia-smi` tool.
+
+[Increase Performance with GPU Boost and K80 Autoboost](http://devblogs.nvidia.com/parallelforall/increase-performance-gpu-boost-k80-autoboost/).
 
 ### Sample Usage
 
@@ -29,3 +38,4 @@ knob.step_down_clock();
 
 printf("Current SM clock: %u\n", knob.get_current_clock());
 ```
+
